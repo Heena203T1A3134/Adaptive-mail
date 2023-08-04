@@ -1,0 +1,66 @@
+//Python code for an adaptive email client app:
+import smtplib
+import imaplib
+import email
+import getpass
+def send_email():
+    sender_email = input("Enter your email address: ")
+    sender_password = getpass.getpass("Enter your email password: ")
+    recipient_email = input("Enter recipient email address: ")
+    subject = input("Enter email subject: ")
+    message = input("Enter email message: ")
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        message = 'Subject: {}\n\n{}'.format(subject, message)
+        server.sendmail(sender_email, recipient_email, message)
+        print("Email sent successfully!")
+    except Exception as e:
+        print("Error sending email: ", str(e))
+    finally:
+        server.quit()
+
+def read_email():
+    email_address = input("Enter your email address: ")
+    email_password = getpass.getpass("Enter your email password: ")
+
+    try:
+        mail = imaplib.IMAP4_SSL('imap.gmail.com')
+        mail.login(email_address, email_password)
+        mail.select('inbox')
+        _, search_data = mail.search(None, 'UNSEEN')
+        for num in search_data[0].split():
+            _, data = mail.fetch(num, '(RFC822)')
+            _, b = data[0]
+            email_message = email.message_from_bytes(b)
+            print('From: ', email_message['From'])
+            print('Subject: ', email_message['Subject'])
+            print('Body: ', email_message.get_payload())
+            print('\n')
+    except Exception as e:
+        print("Error reading email: ", str(e))
+    finally:
+        mail.close()
+        mail.logout()
+
+def main():
+    choice = input("Enter 'S' to send email or 'R' to read email: ")
+    if choice.lower() == 's':
+        send_email()
+    elif choice.lower() == 'r':
+        read_email()
+    else:
+        print("Invalid choice. Please enter 'S' or 'R'.")
+
+if __name__ == '__main__':
+    main()
+//SAMPLE OUTPUT:
+Enter 'S' to send email or 'R' to read email: s
+Enter your email address: 203t1a3112@recw.ac.in
+Enter your email password: ··········
+Enter recipient email address: afreendudekula0786@gmail.com
+Enter email subject: Hi!
+Enter email message: This is afreen
+Error sending email:  (535, b'5.7.8 Username and Password not accepted. Learn more at\n5.7.8  https://support.google.com/mail/?p=BadCredentials jc9-20020a17090325c900b001b9de67285dsm1810326plb.156 - gsmtp')
